@@ -1,23 +1,30 @@
 "use client";
-import { signOut, useSession } from "next-auth/react";
+
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 export default function Dashboard() {
-  const { data: session } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!session) {
-      router.push("/auth/login");
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/");
+    } catch (error) {
+      console.error("ログアウトエラー:", error);
     }
-  }, [session, router]);
+  };
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-      {session && <p>Welcome, {session.user?.email}</p>}
-      <button onClick={() => signOut()}>Logout</button>
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">ダッシュボード</h1>
+      <button
+        onClick={handleLogout}
+        className="bg-red-500 text-white p-2 rounded"
+      >
+        ログアウト
+      </button>
     </div>
   );
 }
